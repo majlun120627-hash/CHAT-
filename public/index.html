@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+
+<html lang="sv">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1">
+
+<title>CHAT!</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#05070b;
+  color:white;
+  font-family:Arial,sans-serif;
+}
+
+header{
+  height:70px;
+  padding:0 25px;
+
+  display:flex;
+  align-items:center;
+
+  border-bottom:1px solid #202938;
+
+  background:#070a10;
+}
+
+.logo{
+  font-size:27px;
+  font-weight:1000;
+  letter-spacing:3px;
+}
+
+.logo span{
+  color:#00eaff;
+  text-shadow:
+    0 0 8px #00eaff,
+    0 0 20px #00eaff;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:30px;
+}
+
+
+/* LOGIN */
+
+#login{
+  max-width:400px;
+  margin:80px auto;
+  padding:30px;
+
+  background:#0b1018;
+
+  border:1px solid #223243;
+
+  border-radius:18px;
+}
+
+input,
+textarea{
+
+  width:100%;
+
+  padding:13px;
+
+  margin:7px 0;
+
+  background:#080d14;
+
+  border:1px solid #263b4d;
+
+  border-radius:10px;
+
+  color:white;
+
+  outline:none;
+}
+
+button{
+
+  padding:11px 15px;
+
+  border:1px solid #00eaff;
+
+  border-radius:10px;
+
+  background:#071217;
+
+  color:white;
+
+  cursor:pointer;
+
+}
+
+button:hover{
+  background:#00eaff;
+  color:#001015;
+}
+
+
+/* APP */
+
+#app{
+  display:none;
+}
+
+.layout{
+
+  display:grid;
+
+  grid-template-columns:260px 1fr;
+
+  min-height:calc(100vh - 70px);
+
+}
+
+
+/* SIDEBAR */
+
+.sidebar{
+
+  border-right:1px solid #202938;
+
+  padding:20px;
+
+  background:#070a10;
+
+}
+
+.user{
+
+  padding:15px;
+
+  background:#0d141d;
+
+  border-radius:12px;
+
+  margin-bottom:20px;
+
+}
+
+.online{
+  color:#42ff91;
+  font-size:12px;
+}
+
+
+/* USERS */
+
+.user-card{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  padding:12px;
+
+  border-radius:10px;
+
+  margin-bottom:6px;
+
+  cursor:pointer;
+}
+
+.user-card:hover{
+  background:#111923;
+}
+
+
+/* CHAT */
+
+.chat{
+
+  display:flex;
+
+  flex-direction:column;
+
+  height:calc(100vh - 70px);
+
+}
+
+.chat-header{
+
+  padding:18px;
+
+  border-bottom:1px solid #202938;
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+}
+
+.messages{
+
+  flex:1;
+
+  overflow-y:auto;
+
+  padding:20px;
+
+}
+
+.message{
+
+  max-width:65%;
+
+  padding:10px 14px;
+
+  margin:8px 0;
+
+  border-radius:14px;
+
+  background:#151d29;
+
+}
+
+.mine{
+
+  margin-left:auto;
+
+  background:
+    linear-gradient(
+      135deg,
+      #007f91,
+      #4350a8
+    );
+
+}
+
+.composer{
+
+  display:flex;
+
+  gap:8px;
+
+  padding:15px;
+
+  border-top:1px solid #202938;
+
+}
+
+.composer input{
+  flex:1;
+  margin:0;
+}
+
+.danger{
+  border-color:#ff477e;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<header>
+
+  <div class="logo">
+    <span>CHAT</span>!
+  </div>
+
+</header>
+
+
+<!-- LOGIN -->
+
+<div
+  id="login"
+  class="container">
+
+  <h1>Welcome to CHAT!</h1>
+
+  <p>
+    A social platform for 13+
+  </p>
+
+  <input
+    id="username"
+    placeholder="Username">
+
+  <input
+    id="age"
+    type="number"
+    placeholder="Age"
+    min="13">
+
+  <button
+    onclick="register()">
+    Create account
+  </button>
+
+  <p id="loginError"></p>
+
+</div>
+
+
+<!-- APP -->
+
+<div
+  id="app">
+
+  <div class="layout">
+
+
+    <aside class="sidebar">
+
+      <div class="user">
+
+        <strong id="myName"></strong>
+
+        <div class="online">
+          ● Online
+        </div>
+
+      </div>
+
+      <h3>Friends</h3>
+
+      <div id="users"></div>
+
+    </aside>
+
+
+    <section class="chat">
+
+      <div class="chat-header">
+
+        <strong id="chatWith">
+          Select someone
+        </strong>
+
+        <div>
+
+          <button
+            onclick="startCall(false)">
+            📞
+          </button>
+
+          <button
+            onclick="startCall(true)">
+            🎥
+          </button>
+
+          <button
+            class="danger"
+            onclick="reportUser()">
+            🚩
+          </button>
+
+          <button
+            class="danger"
+            onclick="blockUser()">
+            🚫
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="messages"
+        class="messages">
+      </div>
+
+
+      <div class="composer">
+
+        <input
+          id="message"
+          placeholder="Write a message..."
+          onkeydown="
+            if(event.key==='Enter')
+            sendMessage()
+          ">
+
+        <button
+          onclick="sendMessage()">
+          Send
+        </button>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>
+
+
+<script src="/socket.io/socket.io.js"></script>
+
+
+<script>
+
+let socket;
+
+let me = "";
+
+let currentChat = "";
+
+
+/* REGISTER */
+
+async function register(){
+
+  const username =
+    document
+      .getElementById("username")
+      .value
+      .trim();
+
+  const age =
+    Number(
+      document
+        .getElementById("age")
+        .value
+    );
+
+
+  if(!username || age < 13){
+
+    document
+      .getElementById("loginError")
+      .textContent =
+      "CHAT! is for users aged 13+.";
+
+    return;
+  }
+
+
+  const response =
+    await fetch(
+      "/api/register",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+          username,
+          age
+        })
+      }
+    );
+
+
+  const data =
+    await response.json();
+
+
+  if(!response.ok){
+
+    document
+      .getElementById("loginError")
+      .textContent =
+      data.error;
+
+    return;
+  }
+
+
+  me = username;
+
+  document
+    .getElementById("login")
+    .style.display =
+    "none";
+
+  document
+    .getElementById("app")
+    .style.display =
+    "block";
+
+  document
+    .getElementById("myName")
+    .textContent =
+    username;
+
+
+  connect();
+
+}
+
+
+/* SOCKET */
+
+function connect(){
+
+  socket =
+    io();
+
+
+  socket.emit(
+    "login",
+    me
+  );
+
+
+  socket.on(
+    "users:update",
+    users => {
+
+      const container =
+        document.getElementById("users");
+
+      container.innerHTML = "";
+
+
+      users
+        .filter(
+          user =>
+          user.username !== me
+        )
+        .forEach(user => {
+
+          const div =
+            document.createElement("div");
+
+          div.className =
+            "user-card";
+
+          div.innerHTML = `
+
+            <span>
+              ${escapeHTML(user.username)}
+            </span>
+
+            <span
+              class="${user.online
+                ? "online"
+                : ""}">
+              ${user.online ? "●" : "○"}
+            </span>
+
+          `;
+
+
+          div.onclick =
+            () =>
+            openChat(user.username);
+
+
+          container.appendChild(div);
+
+        });
+
+    });
+
+
+  socket.on(
+    "message",
+    message => {
+
+      if(
+        message.from === currentChat ||
+        message.to === currentChat
+      ){
+
+        addMessage(message);
+
+      }
+
+    }
+  );
+
+}
+
+
+/* CHAT */
+
+function openChat(username){
+
+  currentChat =
+    username;
+
+  document
+    .getElementById("chatWith")
+    .textContent =
+    username;
+
+  document
+    .getElementById("messages")
+    .innerHTML = "";
+
+}
+
+
+function sendMessage(){
+
+  const input =
+    document
+      .getElementById("message");
+
+  const text =
+    input.value.trim();
+
+
+  if(
+    !text ||
+    !currentChat
+  ){
+
+    return;
+
+  }
+
+
+  socket.emit(
+    "message",
+    {
+      to:currentChat,
+      text
+    }
+  );
+
+
+  input.value = "";
+
+}
+
+
+function addMessage(message){
+
+  const div =
+    document.createElement("div");
+
+  div.className =
+    "message";
+
+
+  if(message.from === me){
+    div.classList.add("mine");
+  }
+
+
+  div.textContent =
+    message.text;
+
+
+  document
+    .getElementById("messages")
+    .appendChild(div);
+
+
+  const messages =
+    document.getElementById("messages");
+
+  messages.scrollTop =
+    messages.scrollHeight;
+
+}
+
+
+/* BLOCK */
+
+async function blockUser(){
+
+  if(!currentChat){
+    return;
+  }
+
+  await fetch(
+    "/api/block",
+    {
+      method:"POST",
+
+      headers:{
+        "Content-Type":
+          "application/json"
+      },
+
+      body:JSON.stringify({
+        username:me,
+        target:currentChat
+      })
+    }
+  );
+
+  alert(
+    currentChat +
+    " has been blocked."
+  );
+
+}
+
+
+/* REPORT */
+
+async function reportUser(){
+
+  if(!currentChat){
+    return;
+  }
+
+
+  const reason =
+    prompt(
+      "Why are you reporting this user?"
+    );
+
+
+  if(!reason){
+    return;
+  }
+
+
+  await fetch(
+    "/api/report",
+    {
+      method:"POST",
+
+      headers:{
+        "Content-Type":
+          "application/json"
+      },
+
+      body:JSON.stringify({
+        reporter:me,
+        reported:currentChat,
+        reason
+      })
+    }
+  );
+
+
+  alert(
+    "Report submitted."
+  );
+
+}
+
+
+/* CALL */
+
+function startCall(video){
+
+  if(!currentChat){
+
+    alert(
+      "Choose a user first."
+    );
+
+    return;
+  }
+
+
+  alert(
+    video
+    ? "Video call with " + currentChat
+    : "Voice call with " + currentChat
+  );
+
+}
+
+
+/* ESCAPE HTML */
+
+function escapeHTML(text){
+
+  return text
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+</script>
+
+</body>
+
+</html>
